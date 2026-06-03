@@ -2,12 +2,14 @@ FROM node:22
 
 WORKDIR /app
 
-copy package*.json ./
+COPY package*.json ./
 
 RUN npm install
 
-copy . .
+COPY . .
+
+RUN npx prisma generate
 
 EXPOSE 3000
 
-CMD ["node" , "src/server.js"]
+CMD ["npm", "run", "start"]
