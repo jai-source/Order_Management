@@ -5,5 +5,55 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = env("DATABASE_URL")
+}
+
+enum Role {
+  Buyer
+  Seller
+  Admin
+}
+
+enum OrderStatus {
+  created
+  accepted
+  rejected
+  cancelled
+  shipped
+  delivered
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  CreatedAt DateTime @default(now())
+
+  products Product[]
+  orders   Order[]
+}
+
+model Product {
+  SellerID    Int
+  id          Int     @id @default(autoincrement())
+  name        String
+  stock       Int
+  price       Float
+  description String?
+
+  seller User    @relation(fields: [SellerID], references: [id])
+  orders Order[]
+}
+
+model Order {
+  id         Int         @id @default(autoincrement())
+  BuyerID    Int
+  ProductID  Int
+  status     OrderStatus @default(created)
+  TotalPrice Float
+  quantity   Int
+
+  buyer   User    @relation(fields: [BuyerID], references: [id])
+  product Product @relation(fields: [ProductID], references: [id])
 }

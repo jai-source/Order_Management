@@ -9,14 +9,14 @@ services:
       - postgres
 
     environment:
-      DATABASE_URL: postgresql://admin:admin@postgres:5432/orderdb
+      DATABASE_URL: postgresql://postgres:jai20012007@postgres:5432/orderdb
 
   postgres:
     image: postgres:17
 
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: jai20012007
       POSTGRES_DB: orderdb
 
     ports:
