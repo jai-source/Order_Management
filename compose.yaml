@@ -7,17 +7,17 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://postgres:jai20012007@postgres:5432/orderdb
-      JWT_SECRET: Order_Management
+      DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}"
+      JWT_SECRET: ${JWT_SECRET}
       PORT: 3000
     command: sh -c "npm run prisma:migrate:deploy && npm run start"
 
   postgres:
     image: postgres:17
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: jai20012007
-      POSTGRES_DB: orderdb
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
     volumes:

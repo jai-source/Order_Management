@@ -10,7 +10,13 @@ const verifyToken = (req, res, next) => {
         });
     }
 
-    const token = authHeader.split(" ")[1];
+    const [scheme, token] = authHeader.split(" ");
+
+    if (scheme?.toLowerCase() !== "bearer" || !token) {
+        return res.status(401).json({
+            message: "Invalid authorization format"
+        });
+    }
 
     try {
 
