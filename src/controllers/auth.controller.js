@@ -1,6 +1,7 @@
 const prisma = require("../config/prisma");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const {successResopnse, errorResponse} = require("../utils/apiResponse")
 
 const register = async (req, res) => {
   try {
@@ -13,9 +14,11 @@ const register = async (req, res) => {
     });
 
     if (existingUser) {
-      return res.status(400).json({
-        message: "User already exists",
-      });
+      return errorResponse(
+        res,
+        400,
+        "User Already Exists"
+      )
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -29,17 +32,26 @@ const register = async (req, res) => {
       },
     });
 
-    res.status(201).json({
-      message: "User registered successfully",
-      user,
-    });
-  } catch (error) {
+    successResopnse(
+      res,
+      201,
+      "User Registered Succesfully"
+    )
+  }
+  catch(error){
+
     console.error(error);
 
-    res.status(500).json({
-      message: "Internal Server Error",
-    });
-  }
+    return errorResponse(
+        res,
+        500,
+        "Internal server error",
+        process.env.NODE_ENV === "development"
+            ? error.message
+            : null
+    );
+
+}
 };
 
 const login = async (req, res) => {
@@ -53,9 +65,11 @@ const login = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found"
-      });
+      return errorResponse(
+        res,
+        404,
+        "User Not Found"
+      )
     }
 
     const isMatch = await bcrypt.compare(
@@ -64,23 +78,35 @@ const login = async (req, res) => {
     );
 
     if (!isMatch) {
-      return res.status(401).json({
-        message: "Invalid credentials"
-      });
+      return errorResponse(
+        res,
+        401,
+        "Invalid Credentials"
+      )
     }
     const token = jwt.sign({id: user.id, role: user.role} , process.env.JWT_SECRET, {expiresIn: "1d"});
-    return res.status(200).json({
-      message: "Login successful",
-      token
-    });
+    return successResopnse(
+      res,
+      200,
+      "Login successful",
+      { token }
+    )
 
-  } catch (error) {
+  } 
+  catch(error){
+
     console.error(error);
 
-    return res.status(500).json({
-      message: "Internal server error"
-    });
-  }
+    return errorResponse(
+        res,
+        500,
+        "Internal server error",
+        process.env.NODE_ENV === "development"
+            ? error.message
+            : null
+    );
+
+}
 };
 
 const profile = async (req, res) => {
@@ -99,22 +125,34 @@ const profile = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
+      return errorResponse(
+        res,
+        404,
+        "User Not Found"
+      )
     }
 
-    return res.status(200).json({
-      message: "Profile fetched successfully",
-      user,
-    });
-  } catch (error) {
+    return successResopnse(
+      res,
+      200,
+      "User Data Retreived Succesfully",
+      { user }
+    )
+  } 
+  catch(error){
+
     console.error(error);
 
-    return res.status(500).json({
-      message: "Internal server error",
-    });
-  }
+    return errorResponse(
+        res,
+        500,
+        "Internal server error",
+        process.env.NODE_ENV === "development"
+            ? error.message
+            : null
+    );
+
+}
 };
 
 

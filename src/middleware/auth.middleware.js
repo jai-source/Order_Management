@@ -1,21 +1,26 @@
 const jwt = require("jsonwebtoken");
+const {successResponse, errorResponse} = require("../utils/apiResponse")
 
 const verifyToken = (req, res, next) => {
 
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-        return res.status(401).json({
-            message: "Token missing"
-        });
+        return errorResponse(
+            res,
+            401,
+            "Invalid Token"
+        )
     }
 
     const [scheme, token] = authHeader.split(" ");
 
     if (scheme?.toLowerCase() !== "bearer" || !token) {
-        return res.status(401).json({
-            message: "Invalid authorization format"
-        });
+        return errorResponse(
+            res,
+            401,
+            "Invalid authorization format"
+        )
     }
 
     try {
@@ -29,13 +34,21 @@ const verifyToken = (req, res, next) => {
 
         next();
 
-    } catch (error) {
-
-        return res.status(401).json({
-            message: "Invalid token"
-        });
-
     }
+    catch(error){
+
+    console.error(error);
+
+    return errorResponse(
+        res,
+        401,
+        "Invalid token",
+        process.env.NODE_ENV === "development"
+            ? error.message
+            : null
+    );
+
+}
 };
 
 module.exports = verifyToken;

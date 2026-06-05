@@ -1,3 +1,5 @@
+const {successResponse, errorResponse} = require("../utils/apiResponse")
+
 const validate = (schema) => {
 
     return (req, res, next) => {
@@ -6,9 +8,11 @@ const validate = (schema) => {
             schema.validate(req.body);
 
         if (error) {
-            return res.status(400).json({
-                message: error.details[0].message
-            });
+            return errorResponse(
+                res,
+                400,
+                error.details[0].message
+            )
         }
 
         req.body = value;
