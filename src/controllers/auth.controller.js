@@ -1,7 +1,7 @@
 const prisma = require("../config/prisma");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const {successResopnse, errorResponse} = require("../utils/apiResponse")
+const {successResponse, errorResponse} = require("../utils/apiResponse")
 
 const register = async (req, res) => {
   try {
@@ -32,7 +32,7 @@ const register = async (req, res) => {
       },
     });
 
-    successResopnse(
+    successResponse(
       res,
       201,
       "User Registered Succesfully"
@@ -85,7 +85,7 @@ const login = async (req, res) => {
       )
     }
     const token = jwt.sign({id: user.id, role: user.role} , process.env.JWT_SECRET, {expiresIn: "1d"});
-    return successResopnse(
+    return successResponse(
       res,
       200,
       "Login successful",
@@ -132,7 +132,7 @@ const profile = async (req, res) => {
       )
     }
 
-    return successResopnse(
+    return successResponse(
       res,
       200,
       "User Data Retreived Succesfully",
