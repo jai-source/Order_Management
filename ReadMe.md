@@ -76,3 +76,17 @@ Cloud Cache that help in fast and efficient searching.
 
 * import the whole Folder on your local Machine.
 * use command "docker compose up --build" or "docker compose up --build -d"for detached mode.
+
+## Run Using Docker Compose
+#### you can pull image from docker Hub as well
+ *https://hub.docker.com/repository/docker/jairatna/order-management/general
+
+```bash
+git clone <repository-url>
+cd Order_Management
+
+docker compose up -d
+```
+
+The application, PostgreSQL, and Redis containers will start automatically.
+
