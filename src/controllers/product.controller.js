@@ -1,5 +1,7 @@
 const prisma = require("../config/prisma");
 
+const redisClient = require("../services/redis.client")
+
 const {
     createProductSchema,
     updateProductSchema
@@ -13,27 +15,54 @@ const {
 
 
 
-const getAllProducts = async (req , res) => {
-    try{
-        const products = await prisma.product.findMany();
+const getAllProducts = async (req, res) => {
+
+    try {
+
+        const cachedProducts =
+            await redisClient.get("products");
+
+        if (cachedProducts) {
+
+            return successResponse(
+                res,
+                200,
+                "Products fetched from cache",
+                JSON.parse(cachedProducts)
+            );
+
+        }
+
+        const products =
+            await prisma.product.findMany();
+
+        await redisClient.set(
+            "products",
+            JSON.stringify(products),
+            {
+                EX: 300
+            }
+        );
 
         return successResponse(
             res,
             200,
             "Products fetched successfully",
             products
-        )
-    }
-    catch(error){
+        );
+
+    } catch (error) {
+
         return errorResponse(
             res,
             500,
-            "Product not found",
+            "Failed to fetch products",
             error.message
-        )
-    }
-};
+        );
 
+    }
+
+};
 
 
 
@@ -106,12 +135,15 @@ const createProduct = async (req, res) => {
             }
         });
 
+
+        await redisClient.del("products");
         return successResponse(
             res,
             201,
             "Product created successfully",
             product
         );
+
 
     } catch (error) {
 
@@ -182,13 +214,17 @@ const updateProduct = async (req, res) => {
                 data: req.body
 
             });
-
+        await redisClient.del("products");
+        await redisClient.del(`product:${id}`);
         return successResponse(
             res,
             200,
             "Product updated successfully",
             updatedProduct
         );
+        
+
+        
 
     } catch (error) {
 
@@ -249,12 +285,15 @@ const deleteProduct = async (req, res) => {
                     id
                 },
             });
-
+        await redisClient.del("products");
+        await redisClient.del(`product:${id}`);
         return successResponse(
             res,
             200,
             "Product deleted successfully",
         );
+
+
 
     } catch (error) {
 

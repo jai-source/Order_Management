@@ -45,8 +45,8 @@ const createOrder = async (req, res) => {
         const TotalPrice =
             product.price * quantity;
 
-        const order =
-            await prisma.order.create({
+        await prisma.$transaction(async(tx) => {
+            const order = await tx.order.create({
 
                 data: {
                     BuyerID: req.user.id,
@@ -57,7 +57,7 @@ const createOrder = async (req, res) => {
 
             });
 
-        await prisma.product.update({
+        await tx.product.update({
 
             where: {
                 id: ProductID
@@ -68,6 +68,7 @@ const createOrder = async (req, res) => {
             }
 
         });
+        })
 
         return successResponse(
             res,
